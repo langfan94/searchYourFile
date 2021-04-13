@@ -12,7 +12,7 @@ type workerStatus struct {
 	status string
 }
 
-var query = "package.json"
+var query = "main.go"
 
 var workerId = 1
 
@@ -24,8 +24,8 @@ var leaveDir = 0
 var doneDir = 0
 var resNum = 0
 
-var tasks = make(chan string, 1)
-var newTasks = make(chan string, 1)
+var tasks = make(chan string, 32)
+var newTasks = make(chan string, 32)
 
 // var extendTasks = make(chan string)
 
@@ -88,8 +88,8 @@ func monitorTasks() {
 			}
 			return true
 		})
-		fmt.Println("hasWaiting", hasWaiting)
-		if !hasWaiting && workerNum < maxWorkers {
+		fmt.Println("hasWaiting", hasWaiting, workers)
+		if !hasWaiting && workerId <= maxWorkers {
 			go worker(workerId)
 			workerId++
 			tasks <- newT
@@ -100,7 +100,7 @@ func monitorTasks() {
 			default:
 				// tasks <- newT
 				leaveDir--
-				fmt.Println("out of memory")
+				fmt.Println("out of memory", newT)
 			}
 			// tasks <- newT
 		}
